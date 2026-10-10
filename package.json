@@ -1,0 +1,8 @@
+{
+  "name": "typecar",
+  "version": "1.0.0",
+  "description": "TypeRacer - Multiplayer Typing Car Racing Game",
+  "scripts": {
+    "build": "bash build.sh"
+  }
+}
