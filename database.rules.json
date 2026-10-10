@@ -1,0 +1,58 @@
+{
+  "rules": {
+    "rooms": {
+      "$roomCode": {
+        // Anyone authenticated (including anonymous sign-in) can read room data
+        ".read": "auth != null",
+        
+        // Creation of room or updates by host / players
+        ".write": "auth != null && (!data.exists() || data.child('hostId').val() === auth.uid || data.child('players').hasChild(auth.uid))",
+        
+        // Validate room-level properties
+        "hostId": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "status": {
+          ".validate": "newData.isString() && (newData.val() === 'waiting' || newData.val() === 'starting' || newData.val() === 'racing' || newData.val() === 'finished' || newData.val() === 'closed')"
+        },
+        "maxPlayers": {
+          ".validate": "newData.isNumber() && newData.val() >= 2 && newData.val() <= 8"
+        },
+        "race": {
+          ".validate": "newData.hasChildren(['targetText'])",
+          "targetText": {
+            ".validate": "newData.isString() && newData.val().length > 0"
+          }
+        },
+        "players": {
+          "$playerId": {
+            // A player can only write to their own record (or the host can kick/remove)
+            ".write": "auth != null && (auth.uid === $playerId || data.parent().parent().child('hostId').val() === auth.uid)",
+            ".validate": "newData.hasChildren(['nickname', 'carId'])",
+            "nickname": {
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 20"
+            },
+            "progress": {
+              ".validate": "newData.isNumber() && newData.val() >= 0.0 && newData.val() <= 1.0"
+            },
+            "wpm": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "accuracy": {
+              ".validate": "newData.isNumber() && newData.val() >= 0.0 && newData.val() <= 100.0"
+            },
+            "finished": {
+              ".validate": "newData.isBoolean()"
+            },
+            "isReady": {
+              ".validate": "newData.isBoolean()"
+            },
+            "connected": {
+              ".validate": "newData.isBoolean()"
+            }
+          }
+        }
+      }
+    }
+  }
+}
